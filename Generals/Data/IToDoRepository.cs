@@ -7,10 +7,12 @@ namespace Generals.Data
     {
         Task<List<ToDoListRecord>> GetAllLists();
         Task<ToDoListRecord> GetListById(int listId);
-        Task<ToDoListRecord> CreateList(ToDoListRecord record);
+        Task<ToDoListRecord> CreateList(ToDoListRecord list);
 
-        Task<ToDoItemRecord> GetItemById(int listId, int itemId);
         Task<List<ToDoItemRecord>> GetItemsForList(int listId);
+        Task<ToDoItemRecord> GetItemById(int listId, int itemId);
+        Task<ToDoItemRecord> CreateItem(ToDoItemRecord item);
+
         Task SaveChanges();
     }
 }

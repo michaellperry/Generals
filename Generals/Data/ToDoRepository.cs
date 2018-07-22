@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,11 +25,11 @@ namespace Generals.Data
             return Task.FromResult(_lists.Where(i => i.Id == listId).SingleOrDefault());
         }
 
-        public Task<ToDoListRecord> CreateList(ToDoListRecord record)
+        public Task<ToDoListRecord> CreateList(ToDoListRecord list)
         {
-            record.Id = _lists.Max(l => l.Id) + 1;
-            _lists.Add(record);
-            return Task.FromResult(record);
+            list.Id = _lists.Max(l => l.Id) + 1;
+            _lists.Add(list);
+            return Task.FromResult(list);
         }
 
         public Task<List<ToDoItemRecord>> GetItemsForList(int listId)
@@ -43,6 +44,13 @@ namespace Generals.Data
             return Task.FromResult(_items
                 .Where(i => i.ListId == listId && i.Id == itemId)
                 .SingleOrDefault());
+        }
+
+        public Task<ToDoItemRecord> CreateItem(ToDoItemRecord item)
+        {
+            item.Id = _items.Max(i => i.Id) + 1;
+            _items.Add(item);
+            return Task.FromResult(item);
         }
 
         public Task SaveChanges()

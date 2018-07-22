@@ -1,4 +1,4 @@
-﻿namespace Generals.Models
+﻿namespace Generals.Data
 {
     public class ToDoItemRecord
     {

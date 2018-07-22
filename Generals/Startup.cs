@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Generals.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -40,6 +41,9 @@ namespace Generals
             {
                 c.SwaggerDoc("v1", new Info { Title = "Generals", Version = "v1" });
             });
+
+            // Register the repository.
+            services.AddSingleton<IToDoRepository>(new ToDoRepository());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

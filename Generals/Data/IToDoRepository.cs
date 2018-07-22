@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Generals.Models
+namespace Generals.Data
 {
     public interface IToDoRepository
     {

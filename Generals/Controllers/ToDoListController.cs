@@ -1,4 +1,5 @@
-﻿using Generals.Models;
+﻿using Generals.Data;
+using Generals.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,12 @@ namespace Generals.Controllers
     [ApiController]
     public class ToDoListController : ControllerBase
     {
-        private IToDoRepository _repository = ToDoRepository.Instance;
+        private IToDoRepository _repository;
+
+        public ToDoListController(IToDoRepository repository)
+        {
+            _repository = repository;
+        }
 
         [HttpGet]
         public async Task<ActionResult<List<ToDoListResponse>>> GetAll()

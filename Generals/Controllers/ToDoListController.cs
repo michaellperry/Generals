@@ -1,6 +1,7 @@
 ﻿using Generals.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Generals.Controllers
@@ -10,34 +11,22 @@ namespace Generals.Controllers
     [ApiController]
     public class ToDoListController : ControllerBase
     {
-        [HttpGet]
-        public Task<ActionResult<List<ToDoList>>> GetAllAsync()
-        {
-            ActionResult<List<ToDoList>> lists = new List<ToDoList>
-            {
-                new ToDoList
-                {
-                    Id = 32,
-                    Name = "Household",
-                    Items = new List<ToDoItem>
-                    {
-                        new ToDoItem
-                        {
-                            Id = 23,
-                            Description = "Install pegboard",
-                            Done = false
-                        },
-                        new ToDoItem
-                        {
-                            Id = 57,
-                            Description = "Paint craft room",
-                            Done = false
-                        }
-                    }
-                }
-            };
+        private IToDoRepository _repository = new ToDoRepository();
 
-            return Task.FromResult(lists);
+        [HttpGet]
+        public async Task<ActionResult<List<ToDoList>>> GetAllAsync()
+        {
+            var lists = await _repository.GetAllLists();
+            return lists.Select(ProjectList).ToList();
+        }
+
+        private ToDoList ProjectList(ToDoListRecord record)
+        {
+            return new ToDoList
+            {
+                Id = record.Id,
+                Name = record.Name
+            };
         }
     }
 }

@@ -30,6 +30,16 @@ namespace Generals.Controllers
             return items.Select(ProjectItem).ToList();
         }
 
+        [HttpGet("{id}", Name = "GetItemById")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<ToDoItemResponse>> GetById(int listId, int id)
+        {
+            var item = await _repository.GetItemById(listId, id);
+            if (item == null)
+                return NotFound();
+            return ProjectItem(item);
+        }
 
         private ToDoItemResponse ProjectItem(ToDoItemRecord item)
         {

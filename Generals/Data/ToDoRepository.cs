@@ -33,12 +33,16 @@ namespace Generals.Data
 
         public Task<List<ToDoItemRecord>> GetItemsForList(int listId)
         {
+            if (!_lists.Any(l => l.Id == listId))
+                return Task.FromResult((List<ToDoItemRecord>)null);
             return Task.FromResult(_items.Where(i => i.ListId == listId).ToList());
         }
 
-        public Task<ToDoItemRecord> GetItemById(int itemId)
+        public Task<ToDoItemRecord> GetItemById(int listId, int itemId)
         {
-            return Task.FromResult(_items.Where(i => i.Id == itemId).SingleOrDefault());
+            return Task.FromResult(_items
+                .Where(i => i.ListId == listId && i.Id == itemId)
+                .SingleOrDefault());
         }
 
         public Task SaveChanges()

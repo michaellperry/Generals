@@ -58,7 +58,7 @@ namespace Generals.Controllers
             return ProjectList(list);
         }
 
-        private static ToDoListResponse ProjectList(ToDoListRecord list)
+        private ToDoListResponse ProjectList(ToDoListRecord list)
         {
             return new ToDoListResponse
             {
@@ -67,14 +67,14 @@ namespace Generals.Controllers
             };
         }
 
-        private static ToDoListRecord ParseList(ToDoListRequest request)
+        private ToDoListRecord ParseList(ToDoListRequest request)
         {
             var list = new ToDoListRecord();
             ParseOntoList(request, list);
             return list;
         }
 
-        private static void ParseOntoList(ToDoListRequest request, ToDoListRecord list)
+        private void ParseOntoList(ToDoListRequest request, ToDoListRecord list)
         {
             list.Name = request.Name;
         }

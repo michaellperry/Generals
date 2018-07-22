@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -6,6 +7,8 @@ namespace Generals.Models
 {
     public class ToDoRepository : IToDoRepository
     {
+        public static IToDoRepository Instance { get; } = new ToDoRepository();
+
         private List<ToDoListRecord> _lists = new List<ToDoListRecord>();
         private List<ToDoItemRecord> _items = new List<ToDoItemRecord>();
 
@@ -22,6 +25,13 @@ namespace Generals.Models
         public Task<ToDoListRecord> GetListById(int listId)
         {
             return Task.FromResult(_lists.Where(i => i.Id == listId).SingleOrDefault());
+        }
+
+        public Task<ToDoListRecord> CreateList(ToDoListRecord record)
+        {
+            record.Id = _lists.Max(l => l.Id) + 1;
+            _lists.Add(record);
+            return Task.FromResult(record);
         }
 
         public Task<List<ToDoItemRecord>> GetItemsForList(int listId)

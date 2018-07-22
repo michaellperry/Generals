@@ -66,6 +66,18 @@ namespace Generals.Controllers
             return ProjectItem(item);
         }
 
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> Delete(int listId, int id)
+        {
+            var item = await _repository.GetItemById(listId, id);
+            if (item == null)
+                return NotFound();
+            await _repository.DeleteItem(listId, id);
+            return NoContent();
+        }
+
         private ToDoItemResponse ProjectItem(ToDoItemRecord item)
         {
             return new ToDoItemResponse

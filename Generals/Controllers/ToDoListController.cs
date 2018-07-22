@@ -58,6 +58,18 @@ namespace Generals.Controllers
             return ProjectList(list);
         }
 
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var list = await _repository.GetListById(id);
+            if (list == null)
+                return NotFound();
+            await _repository.DeleteList(id);
+            return NoContent();
+        }
+
         private ToDoListResponse ProjectList(ToDoListRecord list)
         {
             return new ToDoListResponse

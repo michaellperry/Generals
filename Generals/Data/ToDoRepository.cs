@@ -32,6 +32,14 @@ namespace Generals.Data
             return Task.FromResult(list);
         }
 
+        public Task DeleteList(int listId)
+        {
+            _lists.RemoveAll(l => l.Id == listId);
+            // Cascade delete.
+            _items.RemoveAll(i => i.ListId == listId);
+            return Task.CompletedTask;
+        }
+
         public Task<List<ToDoItemRecord>> GetItemsForList(int listId)
         {
             if (!_lists.Any(l => l.Id == listId))
@@ -51,6 +59,12 @@ namespace Generals.Data
             item.Id = _items.Max(i => i.Id) + 1;
             _items.Add(item);
             return Task.FromResult(item);
+        }
+
+        public Task DeleteItem(int listId, int id)
+        {
+            _items.RemoveAll(i => i.Id == id);
+            return Task.CompletedTask;
         }
 
         public Task SaveChanges()

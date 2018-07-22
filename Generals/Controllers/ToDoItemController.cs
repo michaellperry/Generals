@@ -53,6 +53,19 @@ namespace Generals.Controllers
             return CreatedAtRoute("GetItemById", new { listId, id = item.Id }, ProjectItem(item));
         }
 
+        [HttpPut("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<ToDoItemResponse>> Update(int listId, int id, [FromBody] ToDoItemRequest request)
+        {
+            var item = await _repository.GetItemById(listId, id);
+            if (item == null)
+                return NotFound();
+            ParseOntoItem(request, item);
+            await _repository.SaveChanges();
+            return ProjectItem(item);
+        }
+
         private ToDoItemResponse ProjectItem(ToDoItemRecord item)
         {
             return new ToDoItemResponse
@@ -65,12 +78,18 @@ namespace Generals.Controllers
 
         private ToDoItemRecord ParseItem(int listId, ToDoItemRequest request)
         {
-            return new ToDoItemRecord
+            var item = new ToDoItemRecord()
             {
-                ListId = listId,
-                Description = request.Description,
-                Done = request.Done
+                ListId = listId
             };
+            ParseOntoItem(request, item);
+            return item;
+        }
+
+        private void ParseOntoItem(ToDoItemRequest request, ToDoItemRecord item)
+        {
+            item.Description = request.Description;
+            item.Done = request.Done;
         }
     }
 }

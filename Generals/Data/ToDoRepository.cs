@@ -6,8 +6,6 @@ namespace Generals.Data
 {
     public class ToDoRepository : IToDoRepository
     {
-        public static IToDoRepository Instance { get; } = new ToDoRepository();
-
         private List<ToDoListRecord> _lists = new List<ToDoListRecord>();
         private List<ToDoItemRecord> _items = new List<ToDoItemRecord>();
 

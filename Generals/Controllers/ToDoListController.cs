@@ -39,27 +39,44 @@ namespace Generals.Controllers
 
         [HttpPost]
         [ProducesResponseType(201)]
-        public async Task<ActionResult<ToDoListResponse>> Create([FromBody] ToDoListRequest list)
+        public async Task<ActionResult<ToDoListResponse>> Create([FromBody] ToDoListRequest request)
         {
-            var record = await _repository.CreateList(ParseList(list));
+            var record = await _repository.CreateList(ParseList(request));
             return CreatedAtRoute("GetListById", new { id = record.Id }, ProjectList(record));
         }
 
-        private ToDoListResponse ProjectList(ToDoListRecord record)
+        [HttpPut("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<ToDoListResponse>> Update(int id, [FromBody] ToDoListRequest request)
+        {
+            var list = await _repository.GetListById(id);
+            if (list == null)
+                return NotFound();
+            ParseOntoList(request, list);
+            await _repository.SaveChanges();
+            return ProjectList(list);
+        }
+
+        private static ToDoListResponse ProjectList(ToDoListRecord list)
         {
             return new ToDoListResponse
             {
-                Id = record.Id,
-                Name = record.Name
+                Id = list.Id,
+                Name = list.Name
             };
         }
 
-        private static ToDoListRecord ParseList(ToDoListRequest list)
+        private static ToDoListRecord ParseList(ToDoListRequest request)
         {
-            return new ToDoListRecord
-            {
-                Name = list.Name
-            };
+            var list = new ToDoListRecord();
+            ParseOntoList(request, list);
+            return list;
+        }
+
+        private static void ParseOntoList(ToDoListRequest request, ToDoListRecord list)
+        {
+            list.Name = request.Name;
         }
     }
 }

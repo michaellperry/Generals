@@ -11,5 +11,6 @@ namespace Generals.Data
 
         Task<ToDoItemRecord> GetItemById(int itemId);
         Task<List<ToDoItemRecord>> GetItemsForList(int listId);
+        Task SaveChanges();
     }
 }

@@ -41,6 +41,12 @@ namespace Generals.Data
             return Task.FromResult(_items.Where(i => i.Id == itemId).SingleOrDefault());
         }
 
+        public Task SaveChanges()
+        {
+            // Not necessary.
+            return Task.CompletedTask;
+        }
+
         private void InitializeTables()
         {
             _lists.Add(new ToDoListRecord

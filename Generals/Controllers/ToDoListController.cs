@@ -26,47 +26,45 @@ namespace Generals.Controllers
             return lists.Select(ProjectList).ToList();
         }
 
-        [HttpGet("{id}", Name = "GetListById")]
+        [HttpGet("{identity}", Name = "GetListByIdentity")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<ToDoListResponse>> GetById(int id)
+        public async Task<ActionResult<ToDoListResponse>> GetByIdentity(string identity)
         {
-            var list = await _repository.GetListById(id);
+            var list = await _repository.GetListByIdentity(identity);
             if (list == null)
                 return NotFound();
             return ProjectList(list);
         }
 
-        [HttpPost]
+        [HttpPut("{identity}")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(201)]
-        public async Task<ActionResult<ToDoListResponse>> Create([FromBody] ToDoListRequest request)
+        public async Task<ActionResult<ToDoListResponse>> CreateOrUpdate(string identity, [FromBody] ToDoListRequest request)
         {
-            var record = await _repository.CreateList(ParseList(request));
-            return CreatedAtRoute("GetListById", new { id = record.Id }, ProjectList(record));
-        }
-
-        [HttpPut("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public async Task<ActionResult<ToDoListResponse>> Update(int id, [FromBody] ToDoListRequest request)
-        {
-            var list = await _repository.GetListById(id);
+            var list = await _repository.GetListByIdentity(identity);
             if (list == null)
-                return NotFound();
-            ParseOntoList(request, list);
-            await _repository.SaveChanges();
-            return ProjectList(list);
+            {
+                var record = await _repository.CreateList(ParseList(identity, request));
+                return CreatedAtRoute("GetListByIdentity", new { identity }, ProjectList(record));
+            }
+            else
+            {
+                ParseOntoList(request, list);
+                await _repository.SaveChanges();
+                return ProjectList(list);
+            }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{identity}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(string identity)
         {
-            var list = await _repository.GetListById(id);
+            var list = await _repository.GetListByIdentity(identity);
             if (list == null)
                 return NotFound();
-            await _repository.DeleteList(id);
+            await _repository.DeleteList(list.Id);
             return NoContent();
         }
 
@@ -74,19 +72,21 @@ namespace Generals.Controllers
         {
             return new ToDoListResponse
             {
-                Id = list.Id,
                 Name = list.Name,
                 _links = new Dictionary<string, Link>
                 {
-                    { "self", new Link(Url.RouteUrl("GetListById", new { id = list.Id })) },
-                    { "items", new Link(Url.RouteUrl("GetItemsByListId", new { listId = list.Id })) }
+                    { "self", new Link(Url.RouteUrl("GetListByIdentity", new { identity = list.Identity })) },
+                    { "items", new Link(Url.RouteUrl("GetItemsByListIdentity", new { listIdentity = list.Identity })) }
                 }
             };
         }
 
-        private ToDoListRecord ParseList(ToDoListRequest request)
+        private ToDoListRecord ParseList(string identity, ToDoListRequest request)
         {
-            var list = new ToDoListRecord();
+            var list = new ToDoListRecord
+            {
+                Identity = identity
+            };
             ParseOntoList(request, list);
             return list;
         }

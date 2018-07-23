@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Generals.Controllers
 {
     [Produces("application/json")]
-    [Route("api/ToDoList/{listId}/[controller]")]
+    [Route("api/ToDoList/{listIdentity}/[controller]")]
     [ApiController]
     public class ToDoItemController : ControllerBase
     {
@@ -19,51 +19,58 @@ namespace Generals.Controllers
             _repository = repository;
         }
 
-        [HttpGet(Name = "GetItemsByListId")]
+        [HttpGet(Name = "GetItemsByListIdentity")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<List<ToDoItemResponse>>> GetAllForList(int listId)
+        public async Task<ActionResult<List<ToDoItemResponse>>> GetAllForList(string listIdentity)
         {
-            var items = await _repository.GetItemsForList(listId);
-            if (items == null)
+            var list = await _repository.GetListByIdentity(listIdentity);
+            if (list == null)
                 return NotFound();
-            return items.Select(ProjectItem).ToList();
+            var items = await _repository.GetItemsForList(list.Id);
+            return items.Select(i => ProjectItem(listIdentity, i)).ToList();
         }
 
         [HttpGet("{id}", Name = "GetItemById")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<ToDoItemResponse>> GetById(int listId, int id)
+        public async Task<ActionResult<ToDoItemResponse>> GetById(string listIdentity, int id)
         {
-            var item = await _repository.GetItemById(listId, id);
+            var list = await _repository.GetListByIdentity(listIdentity);
+            if (list == null)
+                return NotFound();
+            var item = await _repository.GetItemById(list.Id, id);
             if (item == null)
                 return NotFound();
-            return ProjectItem(item);
+            return ProjectItem(listIdentity, item);
         }
 
         [HttpPost]
         [ProducesResponseType(201)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<ToDoItemResponse>> Create(int listId, [FromBody] ToDoItemRequest request)
+        public async Task<ActionResult<ToDoItemResponse>> Create(string listIdentity, [FromBody] ToDoItemRequest request)
         {
-            var list = await _repository.GetListById(listId);
+            var list = await _repository.GetListByIdentity(listIdentity);
             if (list == null)
                 return NotFound();
-            var item = await _repository.CreateItem(ParseItem(listId, request));
-            return CreatedAtRoute("GetItemById", new { listId, id = item.Id }, ProjectItem(item));
+            var item = await _repository.CreateItem(ParseItem(list.Id, request));
+            return CreatedAtRoute("GetItemById", new { listIdentity, id = item.Id }, ProjectItem(listIdentity, item));
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<ToDoItemResponse>> Update(int listId, int id, [FromBody] ToDoItemRequest request)
+        public async Task<ActionResult<ToDoItemResponse>> Update(string listIdentity, int id, [FromBody] ToDoItemRequest request)
         {
-            var item = await _repository.GetItemById(listId, id);
+            var list = await _repository.GetListByIdentity(listIdentity);
+            if (list == null)
+                return NotFound();
+            var item = await _repository.GetItemById(list.Id, id);
             if (item == null)
                 return NotFound();
             ParseOntoItem(request, item);
             await _repository.SaveChanges();
-            return ProjectItem(item);
+            return ProjectItem(listIdentity, item);
         }
 
         [HttpDelete("{id}")]
@@ -78,7 +85,7 @@ namespace Generals.Controllers
             return NoContent();
         }
 
-        private ToDoItemResponse ProjectItem(ToDoItemRecord item)
+        private ToDoItemResponse ProjectItem(string listIdentity, ToDoItemRecord item)
         {
             return new ToDoItemResponse
             {
@@ -87,9 +94,9 @@ namespace Generals.Controllers
                 Done = item.Done,
                 _links = new Dictionary<string, Link>
                 {
-                    { "self", new Link(Url.RouteUrl("GetItemById", new { listId = item.ListId, id = item.Id })) },
-                    { "collection", new Link(Url.RouteUrl("GetItemsByListId", new { listId = item.ListId })) },
-                    { "list", new Link(Url.RouteUrl("GetListById", new { id = item.ListId })) },
+                    { "self", new Link(Url.RouteUrl("GetItemById", new { listIdentity, id = item.Id })) },
+                    { "collection", new Link(Url.RouteUrl("GetItemsByListIdentity", new { listIdentity })) },
+                    { "list", new Link(Url.RouteUrl("GetListByIdentity", new { identity = listIdentity })) },
                 }
             };
         }

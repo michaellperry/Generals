@@ -6,7 +6,7 @@ namespace Generals.Data
     public interface IToDoRepository
     {
         Task<List<ToDoListRecord>> GetAllLists();
-        Task<ToDoListRecord> GetListById(int listId);
+        Task<ToDoListRecord> GetListByIdentity(string listIdentity);
         Task<ToDoListRecord> CreateList(ToDoListRecord list);
         Task DeleteList(int listId);
 

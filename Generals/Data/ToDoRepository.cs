@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,9 +19,9 @@ namespace Generals.Data
             return Task.FromResult(_lists);
         }
 
-        public Task<ToDoListRecord> GetListById(int listId)
+        public Task<ToDoListRecord> GetListByIdentity(string listIdentity)
         {
-            return Task.FromResult(_lists.Where(i => i.Id == listId).SingleOrDefault());
+            return Task.FromResult(_lists.Where(i => i.Identity == listIdentity).SingleOrDefault());
         }
 
         public Task<ToDoListRecord> CreateList(ToDoListRecord list)
@@ -42,8 +41,6 @@ namespace Generals.Data
 
         public Task<List<ToDoItemRecord>> GetItemsForList(int listId)
         {
-            if (!_lists.Any(l => l.Id == listId))
-                return Task.FromResult((List<ToDoItemRecord>)null);
             return Task.FromResult(_items.Where(i => i.ListId == listId).ToList());
         }
 
@@ -78,16 +75,19 @@ namespace Generals.Data
             _lists.Add(new ToDoListRecord
             {
                 Id = 32,
+                Identity = "df076a6",
                 Name = "Household"
             });
             _lists.Add(new ToDoListRecord
             {
                 Id = 36,
+                Identity = "fa1b053",
                 Name = "Shopping"
             });
             _lists.Add(new ToDoListRecord
             {
                 Id = 47,
+                Identity = "1f7b6cc",
                 Name = "Workshop"
             });
 

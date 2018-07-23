@@ -19,7 +19,7 @@ namespace Generals.Controllers
             _repository = repository;
         }
 
-        [HttpGet()]
+        [HttpGet(Name = "GetItemsByListId")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<List<ToDoItemResponse>>> GetAllForList(int listId)
@@ -84,7 +84,13 @@ namespace Generals.Controllers
             {
                 Id = item.Id,
                 Description = item.Description,
-                Done = item.Done
+                Done = item.Done,
+                _links = new Dictionary<string, Link>
+                {
+                    { "self", new Link(Url.RouteUrl("GetItemById", new { listId = item.ListId, id = item.Id })) },
+                    { "collection", new Link(Url.RouteUrl("GetItemsByListId", new { listId = item.ListId })) },
+                    { "list", new Link(Url.RouteUrl("GetListById", new { id = item.ListId })) },
+                }
             };
         }
 

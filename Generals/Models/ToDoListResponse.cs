@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Generals.Controllers;
+using System.Collections.Generic;
 
 namespace Generals.Models
 {
@@ -6,5 +7,7 @@ namespace Generals.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+
+        public Dictionary<string, Link> _links { get; set; }
     }
 }

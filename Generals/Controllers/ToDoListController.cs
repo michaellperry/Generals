@@ -75,7 +75,12 @@ namespace Generals.Controllers
             return new ToDoListResponse
             {
                 Id = list.Id,
-                Name = list.Name
+                Name = list.Name,
+                _links = new Dictionary<string, Link>
+                {
+                    { "self", new Link(Url.RouteUrl("GetListById", new { id = list.Id })) },
+                    { "items", new Link(Url.RouteUrl("GetItemsByListId", new { listId = list.Id })) }
+                }
             };
         }
 

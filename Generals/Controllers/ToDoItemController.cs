@@ -1,7 +1,9 @@
 ﻿using Generals.Data;
 using Generals.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,6 +14,8 @@ namespace Generals.Controllers
     [ApiController]
     public class ToDoItemController : ControllerBase
     {
+        private const string DateTimeCodeFormat = "yyyyMMddHHmmssFFF";
+
         private IToDoRepository _repository;
 
         public ToDoItemController(IToDoRepository repository)
@@ -31,57 +35,58 @@ namespace Generals.Controllers
             return items.Select(i => ProjectItem(listIdentity, i)).ToList();
         }
 
-        [HttpGet("{id}", Name = "GetItemById")]
+        [HttpGet("{creationDateTimeCode}", Name = "GetItemByCreationDateTime")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<ToDoItemResponse>> GetById(string listIdentity, int id)
+        public async Task<ActionResult<ToDoItemResponse>> GetByCreationDateTime(string listIdentity, string creationDateTimeCode)
         {
+            var creationDateTime = ParseDateTimeCode(creationDateTimeCode);
             var list = await _repository.GetListByIdentity(listIdentity);
             if (list == null)
                 return NotFound();
-            var item = await _repository.GetItemById(list.Id, id);
+            var item = await _repository.GetItemByCreationDateTime(list.Id, creationDateTime);
             if (item == null)
                 return NotFound();
             return ProjectItem(listIdentity, item);
         }
 
-        [HttpPost]
+        [HttpPut("{creationDateTimeCode}")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(201)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<ToDoItemResponse>> Create(string listIdentity, [FromBody] ToDoItemRequest request)
+        public async Task<ActionResult<ToDoItemResponse>> Update(string listIdentity, string creationDateTimeCode, [FromBody] ToDoItemRequest request)
         {
+            var creationDateTime = ParseDateTimeCode(creationDateTimeCode);
             var list = await _repository.GetListByIdentity(listIdentity);
             if (list == null)
                 return NotFound();
-            var item = await _repository.CreateItem(ParseItem(list.Id, request));
-            return CreatedAtRoute("GetItemById", new { listIdentity, id = item.Id }, ProjectItem(listIdentity, item));
-        }
-
-        [HttpPut("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public async Task<ActionResult<ToDoItemResponse>> Update(string listIdentity, int id, [FromBody] ToDoItemRequest request)
-        {
-            var list = await _repository.GetListByIdentity(listIdentity);
-            if (list == null)
-                return NotFound();
-            var item = await _repository.GetItemById(list.Id, id);
+            var item = await _repository.GetItemByCreationDateTime(list.Id, creationDateTime);
             if (item == null)
-                return NotFound();
-            ParseOntoItem(request, item);
-            await _repository.SaveChanges();
-            return ProjectItem(listIdentity, item);
+            {
+                item = await _repository.CreateItem(ParseItem(list.Id, creationDateTime, request));
+                return CreatedAtRoute("GetItemByCreationDateTime", new { listIdentity, creationDateTimeCode = FormatDateTimeCode(item.CreationDateTime) }, ProjectItem(listIdentity, item));
+            }
+            else
+            {
+                ParseOntoItem(request, item);
+                await _repository.SaveChanges();
+                return ProjectItem(listIdentity, item);
+            }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{creationDateTimeCode}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult> Delete(int listId, int id)
+        public async Task<ActionResult> Delete(string listIdentity, string creationDateTimeCode)
         {
-            var item = await _repository.GetItemById(listId, id);
+            var creationDateTime = ParseDateTimeCode(creationDateTimeCode);
+            var list = await _repository.GetListByIdentity(listIdentity);
+            if (list == null)
+                return NotFound();
+            var item = await _repository.GetItemByCreationDateTime(list.Id, creationDateTime);
             if (item == null)
                 return NotFound();
-            await _repository.DeleteItem(listId, id);
+            await _repository.DeleteItem(list.Id, item.Id);
             return NoContent();
         }
 
@@ -89,23 +94,41 @@ namespace Generals.Controllers
         {
             return new ToDoItemResponse
             {
-                Id = item.Id,
                 Description = item.Description,
                 Done = item.Done,
                 _links = new Dictionary<string, Link>
                 {
-                    { "self", new Link(Url.RouteUrl("GetItemById", new { listIdentity, id = item.Id })) },
+                    { "self", new Link(Url.RouteUrl("GetItemByCreationDateTime", new { listIdentity, creationDateTimeCode = FormatDateTimeCode(item.CreationDateTime) })) },
                     { "collection", new Link(Url.RouteUrl("GetItemsByListIdentity", new { listIdentity })) },
                     { "list", new Link(Url.RouteUrl("GetListByIdentity", new { identity = listIdentity })) },
                 }
             };
         }
 
-        private ToDoItemRecord ParseItem(int listId, ToDoItemRequest request)
+        private DateTime ParseDateTimeCode(string dateTimeCode)
+        {
+            if (!DateTime.TryParseExact(
+                dateTimeCode,
+                DateTimeCodeFormat,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out var result))
+                throw new ArgumentException("Invalid date time code");
+            return result;
+        }
+
+        private string FormatDateTimeCode(DateTime creationDateTime)
+        {
+            string str = creationDateTime.ToString(DateTimeCodeFormat, CultureInfo.InvariantCulture);
+            return str;
+        }
+
+        private ToDoItemRecord ParseItem(int listId, DateTime creationDateTime, ToDoItemRequest request)
         {
             var item = new ToDoItemRecord()
             {
-                ListId = listId
+                ListId = listId,
+                CreationDateTime = creationDateTime
             };
             ParseOntoItem(request, item);
             return item;

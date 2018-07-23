@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Generals.Data
@@ -11,7 +12,7 @@ namespace Generals.Data
         Task DeleteList(int listId);
 
         Task<List<ToDoItemRecord>> GetItemsForList(int listId);
-        Task<ToDoItemRecord> GetItemById(int listId, int itemId);
+        Task<ToDoItemRecord> GetItemByCreationDateTime(int listId, DateTime creationDateTime);
         Task<ToDoItemRecord> CreateItem(ToDoItemRecord item);
         Task DeleteItem(int listId, int id);
 

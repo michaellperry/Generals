@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -44,10 +45,10 @@ namespace Generals.Data
             return Task.FromResult(_items.Where(i => i.ListId == listId).ToList());
         }
 
-        public Task<ToDoItemRecord> GetItemById(int listId, int itemId)
+        public Task<ToDoItemRecord> GetItemByCreationDateTime(int listId, DateTime creationDateTime)
         {
             return Task.FromResult(_items
-                .Where(i => i.ListId == listId && i.Id == itemId)
+                .Where(i => i.ListId == listId && i.CreationDateTime == creationDateTime)
                 .SingleOrDefault());
         }
 
@@ -94,6 +95,7 @@ namespace Generals.Data
             _items.Add(new ToDoItemRecord
             {
                 Id = 12,
+                CreationDateTime = new DateTime(2018, 7, 1, 13, 41, 23, 312, DateTimeKind.Utc),
                 ListId = 32,
                 Description = "Hang the towel rack",
                 Done = false
@@ -101,6 +103,7 @@ namespace Generals.Data
             _items.Add(new ToDoItemRecord
             {
                 Id = 16,
+                CreationDateTime = new DateTime(2018, 7, 1, 13, 52, 13, 34, DateTimeKind.Utc),
                 ListId = 32,
                 Description = "Paint the scrap room",
                 Done = true
@@ -108,6 +111,7 @@ namespace Generals.Data
             _items.Add(new ToDoItemRecord
             {
                 Id = 14,
+                CreationDateTime = new DateTime(2018, 7, 1, 13, 46, 41, 923, DateTimeKind.Utc),
                 ListId = 36,
                 Description = "Bread",
                 Done = false
@@ -115,6 +119,7 @@ namespace Generals.Data
             _items.Add(new ToDoItemRecord
             {
                 Id = 15,
+                CreationDateTime = new DateTime(2018, 7, 1, 13, 46, 47, 314, DateTimeKind.Utc),
                 ListId = 36,
                 Description = "Cheese",
                 Done = true
@@ -122,6 +127,7 @@ namespace Generals.Data
             _items.Add(new ToDoItemRecord
             {
                 Id = 17,
+                CreationDateTime = new DateTime(2018, 7, 1, 14, 32, 1, 412, DateTimeKind.Utc),
                 ListId = 36,
                 Description = "Eggs",
                 Done = false
@@ -129,6 +135,7 @@ namespace Generals.Data
             _items.Add(new ToDoItemRecord
             {
                 Id = 22,
+                CreationDateTime = new DateTime(2018, 7, 5, 4, 31, 17, 312, DateTimeKind.Utc),
                 ListId = 47,
                 Description = "Hang the pegboard",
                 Done = true
@@ -136,6 +143,7 @@ namespace Generals.Data
             _items.Add(new ToDoItemRecord
             {
                 Id = 24,
+                CreationDateTime = new DateTime(2018, 7, 5, 6, 32, 14, 145, DateTimeKind.Utc),
                 ListId = 47,
                 Description = "Sort the tools",
                 Done = false

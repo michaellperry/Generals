@@ -66,12 +66,12 @@ namespace Generals.Controllers
                 item = await _repository.CreateItem(ParseItem(list.Id, creationDateTime, request));
                 return CreatedAtRoute("GetItemByCreationDateTime", new { listIdentity, creationDateTimeCode = FormatDateTimeCode(item.CreationDateTime) }, ProjectItem(listIdentity, item));
             }
-            else
+            else if (item.LastUpdateDateTime < request.UpdateDateTime)
             {
                 ParseOntoItem(request, item);
                 await _repository.SaveChanges();
-                return ProjectItem(listIdentity, item);
             }
+            return ProjectItem(listIdentity, item);
         }
 
         [HttpDelete("{creationDateTimeCode}")]
@@ -138,6 +138,7 @@ namespace Generals.Controllers
         {
             item.Description = request.Description;
             item.Done = request.Done;
+            item.LastUpdateDateTime = request.UpdateDateTime;
         }
     }
 }

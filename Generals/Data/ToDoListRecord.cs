@@ -1,9 +1,12 @@
-﻿namespace Generals.Data
+﻿using System;
+
+namespace Generals.Data
 {
     public class ToDoListRecord
     {
         public string Identity { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
+        public DateTime LastUpdateDateTime { get; set; }
     }
 }

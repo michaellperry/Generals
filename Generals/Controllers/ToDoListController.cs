@@ -48,12 +48,13 @@ namespace Generals.Controllers
                 var record = await _repository.CreateList(ParseList(identity, request));
                 return CreatedAtRoute("GetListByIdentity", new { identity }, ProjectList(record));
             }
-            else
+            else if (list.LastUpdateDateTime < request.UpdateDateTime)
             {
                 ParseOntoList(request, list);
                 await _repository.SaveChanges();
-                return ProjectList(list);
             }
+
+            return ProjectList(list);
         }
 
         [HttpDelete("{identity}")]
@@ -94,6 +95,7 @@ namespace Generals.Controllers
         private void ParseOntoList(ToDoListRequest request, ToDoListRecord list)
         {
             list.Name = request.Name;
+            list.LastUpdateDateTime = request.UpdateDateTime;
         }
     }
 }

@@ -9,5 +9,6 @@ namespace Generals.Data
         public int ListId { get; set; }
         public string Description { get; set; }
         public bool Done { get; set; }
+        public DateTime LastUpdateDateTime { get; set; }
     }
 }

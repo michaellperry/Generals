@@ -128,7 +128,7 @@ This is a project before applying what we learned from the Two Generals.
 In this example, we use `POST` to insert to-do lists.
 
 If you switch to the branch `listid`, you will see that we've modified the API to use `PUT` instead to insert to-do lists.
-It's OK, the specification allows this.
+It's OK, [the specification](https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.6) allows this.
 The client is providing the URL at which the resource will be hosted.
 They are generating the ID.
 Which brings us to the second piece of advice.
